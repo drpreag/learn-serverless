@@ -1,0 +1,27 @@
+service: project-one
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: dev
+  region: eu-west-1
+
+functions:
+  root_get:
+    handler: root.root_get
+    events:
+      - http:
+          path: /
+          method: get
+  root_hello_get:
+    handler: root.hello_get
+    events:
+      - http:
+          path: hello/{name}
+          method: get
+  root_hello_post:
+    handler: root.hello_post
+    events:
+      - http:
+          path: hello
+          method: get
