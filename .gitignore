@@ -17,5 +17,9 @@ var/
 .installed.cfg
 *.egg
 
+# NPM / node
+node_modules/
+package-lock.json
+
 # Serverless directories
 .serverless

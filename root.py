@@ -36,15 +36,16 @@ def hello_get(event, context):
     return response
 
 def hello_post(event, context):
-    message = "Hello world !"
+    message = "/hello post request"
+    request = []
+    dict = json.loads(event["body"])
 
-    if event["pathParameters"] is not None:    
-        if event["pathParameters"]["name"] is not None:    
-            message = "Hello man " + event["pathParameters"]["name"] + " !"
+    for key, value in dict.items():
+        request.append ([key, value])
 
     body = {
         "message": message,
-        "input": event
+        "request": request
     }
 
     response = {
