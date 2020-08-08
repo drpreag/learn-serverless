@@ -21,11 +21,10 @@ def hello_get(event, context):
 
     if event["pathParameters"] is not None:
         if event["pathParameters"]["name"] is not None:
-            message = "Hi, this is /hello endpoint! Parameter is " + event["pathParameters"]["name"] + " !"
+            message = message + " Parameter is " + event["pathParameters"]["name"] + " !"
 
     body = {
-        "message": message,
-        "input": event
+        "message": message
     }
 
     response = {
@@ -37,10 +36,10 @@ def hello_get(event, context):
 
 def hello_post(event, context):
     message = "Hi, this is /hello POST endpoint!"
+    request = []
 
-    if event["pathParameters"] is not None:
-        if event["pathParameters"]["name"] is not None:
-            message = "Hello man " + event["pathParameters"]["name"] + " !"
+    for key, value in json.loads (event["body"]).items():
+        request.append ([key,value])
 
     body = {
         "message": message,
