@@ -1,4 +1,7 @@
 service: project-one
+# plugins:
+#   - serverless-reqvalidator-plugin
+#   - serverless-aws-documentation
 
 provider:
   name: aws
@@ -25,4 +28,4 @@ functions:
     events:
       - http:
           path: hello
-          method: get
+          method: post
