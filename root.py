@@ -1,7 +1,6 @@
 import json
 
-
-def root_get(event, context):
+def root(event, context):
     message = "Hi, this is / endpoint!"
 
     body = {
@@ -15,16 +14,31 @@ def root_get(event, context):
 
     return response
 
-
-def hello_get(event, context):
+def hello(event, context):
     message = "Hi, this is /hello endpoint!"
 
-    if event["pathParameters"] is not None:
-        if event["pathParameters"]["name"] is not None:
-            message = message + " Parameter is " + event["pathParameters"]["name"] + " !"
+    body = {
+        "message": message,
+        #"input": event
+    }
+
+    response = {
+        "statusCode": 200,
+        "body": json.dumps(body)
+    }
+
+    return response
+
+def hello_name(event, context):
+    message = "Hi, this is /hello/name endpoint!"
+
+    if "pathParameters" in event:
+        if "id" in event["pathParameters"]:
+            message = "Hi, this is /hello/name/id/" + event["pathParameters"]["id"] + " endpoint !"
 
     body = {
-        "message": message
+        "message": message,
+        #"input": event
     }
 
     response = {

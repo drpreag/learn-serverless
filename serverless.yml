@@ -1,4 +1,4 @@
-service: project-one
+service: ProjectOne
 # plugins:
 #   - serverless-reqvalidator-plugin
 #   - serverless-aws-documentation
@@ -9,21 +9,38 @@ provider:
   stage: dev
   region: eu-west-1
   profile: peca_private
+  stackName: ProjectOne
+  apiName: ProjectOne
+  memorySize: 128
+  endpointType: regional
+  role: arn:aws:iam::016682580984:role/serverless-role
 
 functions:
-  root_get:
-    handler: root.root_get
+  root:
+    handler: root.root
     events:
       - http:
           path: /
           method: get
-  root_hello_get:
-    handler: root.hello_get
+
+  hello:
+    handler: root.hello
     events:
       - http:
-          path: hello/{name}
+          path: hello
           method: get
-  root_hello_post:
+
+  hello_name:
+    handler: root.hello_name
+    events:
+      - http:
+          path: hello/name/{id}
+          method: get
+          request:
+            parameters:
+              paths:
+                id: false
+  hello_post:
     handler: root.hello_post
     events:
       - http:
