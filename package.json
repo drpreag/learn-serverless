@@ -1,0 +1,11 @@
+{
+  "name": "ProjectOne",
+  "description": "",
+  "version": "0.1.0",
+  "dependencies": {
+    "serverless-vpc-discovery": "^1.0.14"
+  },
+  "devDependencies": {
+    "serverless-vpc-plugin": "^1.0.0"
+  }
+}

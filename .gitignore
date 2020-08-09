@@ -20,6 +20,7 @@ var/
 # NPM / node
 node_modules/
 package-lock.json
+.venv/
 
 # Serverless directories
 .serverless

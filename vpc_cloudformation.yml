@@ -1,0 +1,491 @@
+Parameters:
+
+  VPCSecondOctet:
+    Description: Second octet number for VPN CIDR 10.x.0.0/16
+    Type: Number
+    MinValue: 10
+    MaxValue: 250
+    Default: 10
+  Region:
+    Description: Region to deploy VPC
+    Type: String
+    Default: eu-west-1
+    AllowedValues:
+      - us-east-2
+      - us-west-1
+      - us-west-2
+      - eu-west-1
+  InstanceType:
+    Description: EC2 instance type (has default, AllowedValues)
+    Type: String
+    Default: t3a.small
+    AllowedValues:
+      - t3.small
+      - t3a.small
+      - t3.medium
+      - t3a.medium
+    ConstraintDescription: must be a valid EC2 instance type.
+
+#  KeyName:
+#    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances. Linked to AWS Parameter
+#    Type: AWS::EC2::KeyPair::KeyName
+#    Default: DevOpsServer
+#    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+#  MySubnetIDs:
+#    Description: Subnet IDs that is a List of Subnet Id
+#    Type: "List<AWS::EC2::Subnet::Id>"
+#  DbSubnetIpBlocks:
+#    Description: "Comma-delimited list of three CIDR blocks"
+#    Type: CommaDelimitedList
+#    Default: "10.0.48.0/24, 10.0.112.0/24, 10.0.176.0/24"
+
+Resources:
+
+# VPC
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.0.0/16'] ]
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-vpc"
+
+# IGW
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-igw"
+
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+# SUBNETS
+
+  SubnetDMZ1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'a'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.10.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-DMZ-1a"
+
+  SubnetDMZ1b:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'b'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.11.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-DMZ-1b"
+
+  SubnetDMZ1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'c'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.12.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-DMZ-1c"
+
+  SubnetCore1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'a'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.20.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-Core-1a"
+
+  SubnetCore1b:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'b'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.21.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-Core-1b"
+
+  SubnetCore1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'c'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.22.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-Core-1c"
+
+  SubnetDB1a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'a'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.30.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-DB-1a"
+
+  SubnetDB1b:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'b'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.31.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-DB-1b"
+
+  SubnetDB1c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Join [ '', [!Ref Region, 'c'] ]
+      VpcId: !Ref VPC
+      CidrBlock: !Join [ '', ['10.', !Ref VPCSecondOctet, '.32.0/24'] ]
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Subnet-DB-1c"
+
+# ROUTE TABLES
+
+  DMZRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-dmz-route-table"
+
+  CoreRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-core-route-table"
+
+  DBRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-db-route-table"
+
+  InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref DMZRouteTable
+
+# SUBNET ROUTE TABLES ASSOCIATIONS
+
+  SubnetDMZ0RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DMZRouteTable
+      SubnetId: !Ref SubnetDMZ1a
+
+  SubnetDMZ1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DMZRouteTable
+      SubnetId: !Ref SubnetDMZ1b
+
+  SubnetDMZ2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DMZRouteTable
+      SubnetId: !Ref SubnetDMZ1c
+
+  SubnetCore0RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref CoreRouteTable
+      SubnetId: !Ref SubnetCore1a
+
+  SubnetCore1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref CoreRouteTable
+      SubnetId: !Ref SubnetCore1b
+
+  SubnetCore2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref CoreRouteTable
+      SubnetId: !Ref SubnetCore1c
+
+  SubnetDB0RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DBRouteTable
+      SubnetId: !Ref SubnetDB1a
+
+  SubnetDB1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DBRouteTable
+      SubnetId: !Ref SubnetDB1b
+
+  SubnetDB2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref DBRouteTable
+      SubnetId: !Ref SubnetDB1c
+
+# SECURITY GROUPS
+
+# OwnIP Security Group
+
+  OwnIPSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: Own_IP_Security_Group
+      GroupDescription: Allow some traffic from own IPs
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Own_IP_Security_Group"
+
+  IngressRulesOwnIP22PecaHome:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref OwnIPSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      CidrIp: 62.240.26.8/32
+      Description: "Allow from Peca home"
+
+  EgressRulesOwnIP22:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      GroupId: !Ref OwnIPSecurityGroup
+      IpProtocol: -1
+      CidrIp: 0.0.0.0/0
+
+# DMZ Security Group
+
+  DMZSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: DMZ_Security_Group
+      GroupDescription: SSH traffic in, all traffic out.
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_DMZ_Security_Group"
+
+  IngressRulesDMZ80All:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref DMZSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      CidrIp: 0.0.0.0/0
+      Description: "Allow 80 from all"
+
+  IngressRulesDMZ443All:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref DMZSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      CidrIp: 0.0.0.0/0
+      Description: "Allow 443 from all"
+
+  EgressRulesDMZ:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      GroupId: !Ref DMZSecurityGroup
+      IpProtocol: -1
+      CidrIp: 0.0.0.0/0
+
+# Core Security Group
+
+  CoreSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: Core_Security_Group
+      GroupDescription: Allow all private traffic within Core layer
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}_Core_Security_Group"
+
+  IngressRulesCore80:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref CoreSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourceSecurityGroupId: !Ref DMZSecurityGroup
+      Description: "Allow 80 from DMZ sg"
+
+  IngressRulesCore443:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref CoreSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref DMZSecurityGroup
+      Description: "Allow 443 from DMZ sg"
+
+  IngressRulesCoreAll:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref CoreSecurityGroup
+      IpProtocol: -1
+      FromPort: -1
+      ToPort: -1
+      SourceSecurityGroupId: !Ref CoreSecurityGroup
+      Description: "Allow all from Core sg"
+
+  EgressRulesCore:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      GroupId: !Ref CoreSecurityGroup
+      IpProtocol: -1
+      CidrIp: 0.0.0.0/0
+
+# DB Security Group
+
+  DBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: DB_Security_Group
+      GroupDescription: Allow some traffic from Core to DB layer
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: ! Sub "${AWS::StackName}_DB_Security_Group"
+
+  IngressRulesOracle:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: tcp
+      FromPort: 1521
+      ToPort: 1521
+      SourceSecurityGroupId: !Ref CoreSecurityGroup
+      Description: "Allow Oracle query from Core"
+
+  IngressRulesMySQL:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: Tcp
+      FromPort: 3306
+      ToPort: 3306
+      SourceSecurityGroupId: !Ref CoreSecurityGroup
+      Description: "Allow Mysql query from Core"
+
+  IngressRulesLdap:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: Tcp
+      FromPort: 389
+      ToPort: 389
+      SourceSecurityGroupId: !Ref CoreSecurityGroup
+      Description: "Allow LDAP query from Core"
+
+  IngressRulesDocumentDB:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: Tcp
+      FromPort: 27017
+      ToPort: 27017
+      SourceSecurityGroupId: !Ref CoreSecurityGroup
+      Description: "Allow DocumentDB query from Core"
+
+  EgressRulesDB:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      GroupId: !Ref DBSecurityGroup
+      IpProtocol: -1
+      CidrIp: 0.0.0.0/0
+
+# RDS
+
+  # DBSubnetg:
+  #   Type: 'AWS::RDS::DBSubnetGroup'
+  #   Properties:
+  #     DBSubnetGroupDescription: !Sub "${AWS::StackName}_dbsubnetg"
+  #     DBSubnetGroupName: !Sub "${AWS::StackName}_dbsubnetg"
+  #     SubnetIds:
+  #       - !Ref SubnetDB1a
+  #       - !Ref SubnetDB1b
+  #       - !Ref SubnetDB1c
+  #     Tags:
+  #       - Key: Name
+  #         Value: !Sub "${AWS::StackName}_dbsubnetg"
+
+  # Database:
+  #   Type: AWS::RDS::DBInstance
+  #   Properties:
+  #     AllowMajorVersionUpgrade: false
+  #     AutoMinorVersionUpgrade: false
+  #     DBInstanceClass: db.t3.small
+  #     DBInstanceIdentifier: !Sub "${AWS::StackName}-db"
+  #     DBName: softwarepieces
+  #     DBSubnetGroupName: !Ref DBSubnetg
+  #     DeletionProtection: false
+  #     MasterUsername: admin
+  #     MasterUserPassword: 'admpasos63'
+  #     AllocatedStorage: 20
+  #     MultiAZ: false
+  #     Engine: mysql
+
+# S3
+
+# DocumentDB
+
+
+
+################## Outputs
+Outputs:
+
+  VPCId:
+    Description: VPC Id
+    Value: !Ref VPC
+    Export:
+      Name: !Sub "${AWS::StackName}-VpcId"
+
+  VPCName:
+    Description: VPC Name
+    Value: !Sub "${AWS::StackName}-vpc"
+    Export:
+      Name: !Sub "${AWS::StackName}-VpcName"

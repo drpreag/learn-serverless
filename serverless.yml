@@ -1,7 +1,9 @@
 service: ProjectOne
-# plugins:
+plugins:
 #   - serverless-reqvalidator-plugin
 #   - serverless-aws-documentation
+  - serverless-vpc-plugin
+  - serverless-vpc-discovery
 
 provider:
   name: aws
@@ -14,35 +16,50 @@ provider:
   memorySize: 128
   endpointType: regional
   role: arn:aws:iam::016682580984:role/serverless-role
+  deploymentBucket:
+    name: serverless-dev-projectone
+    maxPreviousDeploymentArtifacts: 10
+    blockPublicAccess: false
+
+custom:
+  vpc:
+    vpcName: '${opt:env}-vpc'
+    subnetNames:
+      - '${opt:env}_Subnet-Core-1a'
+      - '${opt:env}_Subnet-Core-1b'
+      - '${opt:env}_Subnet-Core-1c'
+    securityGroupNames:
+      - '${opt:env}_Core_Security_Group'
 
 functions:
-  root:
-    handler: root.root
+  users:
+    handler: users
     events:
       - http:
-          path: /
-          method: get
-
-  hello:
-    handler: root.hello
-    events:
-      - http:
-          path: hello
-          method: get
-
-  hello_name:
-    handler: root.hello_name
-    events:
-      - http:
-          path: hello/name/{id}
+          path: users
           method: get
           request:
             parameters:
               paths:
                 id: false
-  hello_post:
-    handler: root.hello_post
+  user_id:
+    handler: user
     events:
       - http:
-          path: hello
-          method: post
+          path: users/id/{id}
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+
+  user_email:
+    handler: user
+    events:
+      - http:
+          path: users/email/{email}
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
