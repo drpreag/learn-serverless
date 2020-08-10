@@ -1,13 +1,11 @@
 service: ProjectOne
 plugins:
-#   - serverless-reqvalidator-plugin
-#   - serverless-aws-documentation
-  - serverless-vpc-plugin
-  - serverless-vpc-discovery
-
+  - serverless-python-requirements
+  #- serverless-vpc-plugin
+  # - serverless-vpc-discovery
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.6
   stage: dev
   region: eu-west-1
   profile: peca_private
@@ -21,29 +19,32 @@ provider:
     maxPreviousDeploymentArtifacts: 10
     blockPublicAccess: false
 
-custom:
-  vpc:
-    vpcName: '${opt:env}-vpc'
-    subnetNames:
-      - '${opt:env}_Subnet-Core-1a'
-      - '${opt:env}_Subnet-Core-1b'
-      - '${opt:env}_Subnet-Core-1c'
-    securityGroupNames:
-      - '${opt:env}_Core_Security_Group'
+# custom:
+#   vpcConfig:
+#     vpcName: 'ProjectOne-SLS-dev'
+#     cidrBlock: '10.20.0.0/16'
+#     subnetNames:
+#       - 'ProjectOne-SLS-dev_Subnet-Core'
+#     securityGroupNames:
+#       - 'ProjectOne-SLS-dev_Core_Security_Group'
 
 functions:
+  starter:
+    handler: users.starter
+    events:
+      - http:
+          path: starter
+          method: get
+
   users:
-    handler: users
+    handler: users.users
     events:
       - http:
           path: users
           method: get
-          request:
-            parameters:
-              paths:
-                id: false
+
   user_id:
-    handler: user
+    handler: users.user_id
     events:
       - http:
           path: users/id/{id}
@@ -51,10 +52,10 @@ functions:
           request:
             parameters:
               paths:
-                id: true
+                id: false
 
   user_email:
-    handler: user
+    handler: users.user_email
     events:
       - http:
           path: users/email/{email}
@@ -62,4 +63,11 @@ functions:
           request:
             parameters:
               paths:
-                id: true
+                email: true
+
+  user_add:
+    handler: users.user_add
+    events:
+      - http:
+          path: users/user_add
+          method: get

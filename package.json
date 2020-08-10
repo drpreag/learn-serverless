@@ -3,9 +3,10 @@
   "description": "",
   "version": "0.1.0",
   "dependencies": {
-    "serverless-vpc-discovery": "^1.0.14"
+    "serverless-python-requirements": "^5.1.0"
   },
   "devDependencies": {
+    "serverless-vpc-discovery": "^1.0.14",
     "serverless-vpc-plugin": "^1.0.0"
   }
 }

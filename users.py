@@ -1,63 +1,73 @@
 import json
-import pymongo
+#import pymongo
 import sys
+import requests
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+import urllib.parse
 
 def users(event, context):
-    message = "Hi, this is /users endpoint!"
+    client = MongoClient('mongodb+srv://sandbox_admin:GK6zEPpg3ADXx94@projectone.bjfes.mongodb.net/test?retryWrites=true&w=majority')
+    users = client.test.users
+    response = []
 
-    client = pymongo.MongoClient('mongodb://admin:servo123@test.cluster-cfzdxpdb0knm.eu-west-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred')
-    db = client.sample_database
-    users = db.users
-
-    body = {
-        "message": message,
-    }
+    query = users.find({}).limit(10)
+    if users:
+        for user in query:
+            response.append ({ '_id': str(ObjectId(user['_id'])), 'name' : user['name'] , 'email': user['email'], 'password': user['password'] })
+    else:
+        return { "statusCode": 404 }
 
     response = {
         "statusCode": 200,
-        "body": json.dumps(body)
+        "body": json.dumps({
+            "users": response
+        })
     }
-
     return response
 
-def user(event, context):
-    message = "Hi, this is /user/id/{id} endpoint!"
-
+def user_id(event, context):
     if "pathParameters" in event:
         if "id" in event["pathParameters"]:
-            message = "Hi, this is /user/id/{" + event["pathParameters"]["id"] + "} endpoint !"
+            id = event["pathParameters"]["id"]
 
+    if 'id' not in locals() or len(id)!=24:
+        return { "statusCode": 404 }
 
-    body = {
-        "message": message,
-        #"input": event
-    }
-
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
-
+    client = MongoClient('mongodb+srv://sandbox_admin:GK6zEPpg3ADXx94@projectone.bjfes.mongodb.net/test?retryWrites=true&w=majority')
+    users = client.test.users
+    user = users.find_one({ "_id": ObjectId(id) })
+    if user:
+        response = {
+            "statusCode": 200,
+            "body": json.dumps({
+                "user": { '_id': str(ObjectId(user['_id'])), 'name' : user['name'] , 'email': user['email'], 'password': user['password'] }
+            })
+        }
+    else:
+        return { "statusCode": 404 }
     return response
 
-def user(event, context):
-    message = "Hi, this is /user/email/{email} endpoint!"
-
+def user_email(event, context):
     if "pathParameters" in event:
         if "email" in event["pathParameters"]:
-            message = "Hi, this is /user/email/{" + event["pathParameters"]["email"] + "} endpoint !"
+            email = urllib.parse.unquote_plus(event["pathParameters"]["email"])
 
+    if 'email' not in locals():
+        return { "statusCode": 404 }
 
-    body = {
-        "message": message,
-        #"input": event
-    }
-
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
-
+    client = MongoClient('mongodb+srv://sandbox_admin:GK6zEPpg3ADXx94@projectone.bjfes.mongodb.net/test?retryWrites=true&w=majority')
+    users = client.test.users
+    user = users.find_one({ "email":  email})
+    if user:
+        response = {
+            "statusCode": 200,
+            "body": json.dumps({
+                "user": { '_id': str(ObjectId(user['_id'])), 'name' : user['name'] , 'email': user['email'], 'password': user['password'] }
+            })
+        }
+    else:
+        return { "statusCode": 404 }
     return response
 
 def user_add_post(event, context):
@@ -67,9 +77,25 @@ def user_add_post(event, context):
     for key, value in json.loads (event["body"]).items():
         request.append ([key,value])
 
+    response = {
+        "statusCode": 200,
+        "body": json.dumps({
+            "message": message,
+            "request": request
+        })
+    }
+    return response
+
+def user_add(event, context):
+    message = "Hi, this is /user/add GET endpoint!"
+    client = MongoClient('mongodb+srv://sandbox_admin:GK6zEPpg3ADXx94@projectone.bjfes.mongodb.net/stest?retryWrites=true&w=majority')
+    users = client.test.users
+
+    user_id = users.insert_one ({"name": "Name one", "email":"Email one", "password": "blank" })
+
     body = {
         "message": message,
-        "request": request
+        "response": user_id
     }
 
     response = {
