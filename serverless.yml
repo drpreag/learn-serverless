@@ -1,8 +1,8 @@
 service: ProjectOne
+
 plugins:
   - serverless-python-requirements
-  #- serverless-vpc-plugin
-  # - serverless-vpc-discovery
+
 provider:
   name: aws
   runtime: python3.6
@@ -19,23 +19,7 @@ provider:
     maxPreviousDeploymentArtifacts: 10
     blockPublicAccess: false
 
-# custom:
-#   vpcConfig:
-#     vpcName: 'ProjectOne-SLS-dev'
-#     cidrBlock: '10.20.0.0/16'
-#     subnetNames:
-#       - 'ProjectOne-SLS-dev_Subnet-Core'
-#     securityGroupNames:
-#       - 'ProjectOne-SLS-dev_Core_Security_Group'
-
 functions:
-  starter:
-    handler: users.starter
-    events:
-      - http:
-          path: starter
-          method: get
-
   users:
     handler: users.users
     events:
