@@ -5,15 +5,9 @@ import sys
 def users(event, context):
     message = "Hi, this is /users endpoint!"
 
-    ##Create a MongoDB client, open a connection to Amazon DocumentDB as a replica set and specify the read preference as secondary preferred
     client = pymongo.MongoClient('mongodb://admin:servo123@test.cluster-cfzdxpdb0knm.eu-west-1.docdb.amazonaws.com:27017/?ssl=true&ssl_ca_certs=rds-combined-ca-bundle.pem&replicaSet=rs0&readPreference=secondaryPreferred')
-
-    ##Specify the database to be used
     db = client.sample_database
-
-    ##Specify the collection to be used
-    col = db.sample_collection
-
+    users = db.users
 
     body = {
         "message": message,
