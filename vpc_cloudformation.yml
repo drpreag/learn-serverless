@@ -389,7 +389,7 @@ Resources:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: ! Sub "${AWS::StackName}_DB_Security_Group"
+          Value: !Sub "${AWS::StackName}_DB_Security_Group"
 
   IngressRulesOracle:
     Type: 'AWS::EC2::SecurityGroupIngress'
